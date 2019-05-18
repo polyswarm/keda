@@ -25,6 +25,16 @@ test:
 e2e-test:
 	./tests/run_tests.sh
 
+
+.PHONY: dockerbuild
+dockerbuild:
+	docker build -t polyswarm/keda .
+
+
+.PHONY: dockerpush
+dockerpush:
+	docker push polyswarm/keda
+
 ##################################################
 # Build                                          #
 ##################################################

@@ -338,16 +338,9 @@ func (h *ScaleHandler) updateDeployment(deployment *apps_v1.Deployment) error {
 }
 
 func (h *ScaleHandler) resolveEnv(deployment *apps_v1.Deployment) (map[string]string, error) {
-	deploymentKey, err := cache.MetaNamespaceKeyFunc(deployment)
-	if err != nil {
-		return nil, err
-	}
+	_, err := cache.MetaNamespaceKeyFunc(deployment)
 
-	if len(deployment.Spec.Template.Spec.Containers) < 1 {
-		return nil, fmt.Errorf("Deployment (%s) doesn't have containers", deploymentKey)
-	} else if len(deployment.Spec.Template.Spec.Containers) > 1 {
-		return nil, fmt.Errorf("Deployment (%s) has more than one container", deploymentKey)
-	}
+	//log.Warnf("Deployment (%s) has more than one container", deploymentKey)
 
 	container := deployment.Spec.Template.Spec.Containers[0]
 	resolved := make(map[string]string)
@@ -499,6 +492,8 @@ func (h *ScaleHandler) getScaler(trigger keda_v1alpha1.ScaleTriggers, resolvedEn
 		return scalers.NewAzureServiceBusScaler(resolvedEnv, trigger.Metadata)
 	case "kafka":
 		return scalers.NewKafkaScaler(resolvedEnv, trigger.Metadata)
+	case "redis":
+		return scalers.NewRedisScaler(resolvedEnv, trigger.Metadata)
 	case "rabbitmq":
 		return scalers.NewRabbitMQScaler(resolvedEnv, trigger.Metadata)
 	default:
